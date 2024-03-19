@@ -1,0 +1,82 @@
+BAYMENT
+composer require stripe/stripe-php 8.4
+create a stripe account 
+changes in the .env
+make route
+https://www.itsolutionstuff.com/post/laravel-9-stripe-payment-gateway-integration-tutorialexample.html
+make a view for payment
+write code for payment in the controller
+
+public function stripe($totalprice){
+    return view('home.stripe',compact('totalprice'));
+}
+public function stripePost(Request $request, $totalprice)
+{
+    Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    Stripe\Charge::create ([
+            "amount" => $totalprice * 100,
+            "currency" => "usd",
+            "source" => $request->stripeToken,
+            "description" => "Test payment from itsolutionstuff.com."
+    ]);
+    
+    Session::flash('success', 'Payment successful!');
+
+    return back();
+}
+-----------------------------------------
+PDF
+composer require barryvdh/laravel-dompdf 1.0.2
+go to config/app.php 
+'providers' => [
+    Barryvdh\DomPDF\ServiceProvider::class,
+],
+'aliases' => [
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+]
+------------------------------------------
+Verify Email
+
+Sting Google (Step Verification, App password)
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=465
+MAIL_USERNAME=ghassanzak16412@gmail.com
+MAIL_PASSWORD=tqkozaeftvcoywmc
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS=ghassanzak16412@gmail.com
+MAIL_FROM_NAME="Ecommerce Mail"
+
+Model\User => implements MustVerifyEmail
+
+config\fortify.php => //
+
+web.php => middleware('auth', 'verified')
+
+    public function send_email($id){
+        $order = Order::find($id);
+        return view('admin.email_info', compact('order'));
+    }
+
+    public function send_user_email(Request $request, $id){
+        $order = Order::find($id);
+        $details = [
+            'greeting' => $request->greeting,
+            'firstline' => $request->firstline,
+            'body' => $request->body,
+            'button' => $request->button,
+            'url' => $request->url,
+            'lastline' => $request->lastline,
+        ];
+        Notification::send($order, new SendEmailNotification($details));
+        return redirect()->back()->with('message','send email successfully');
+    }
+-----------------------------------------
+Send Email Notification
+php artisan notifications:table
+php artisan migrate
+php artisan make:notification MyFirstNotification
+
+
